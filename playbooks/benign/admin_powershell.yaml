@@ -1,0 +1,17 @@
+playbook_id: admin_powershell
+classification: suspicious
+description: >
+  Legitimate admin PowerShell maintenance script launched via a scheduled
+  task (wscript -> powershell chain). Looks identical to LOLBIN execution
+  — the distinguishing factor is the user account and business-hours timing.
+
+phases:
+  - id: maintenance_script
+    event_id: 4688
+    process_chain:
+      parent: wscript.exe
+      child: powershell.exe
+    command_line_contains:
+      - "-enc"
+    user: admin
+    time_hint: business_hours

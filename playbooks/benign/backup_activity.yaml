@@ -1,0 +1,15 @@
+playbook_id: backup_activity
+classification: suspicious
+description: >
+  Backup service queries AD replication attributes (benign but looks exactly
+  like a DCSync attempt — the distinguishing factor is the user account).
+
+phases:
+  - id: directory_access
+    event_id: 4662
+    object:
+      type: domainDNS
+      properties:
+        - "Replicating Directory Changes"
+      access_mask: "0x100"
+    user: backup_service

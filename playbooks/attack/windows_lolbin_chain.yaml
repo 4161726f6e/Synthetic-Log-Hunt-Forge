@@ -1,0 +1,35 @@
+playbook_id: windows_lolbin_chain
+classification: malicious
+description: "LOLBIN-based execution chain"
+
+phases:
+  - id: initial_access
+    event_id: 4688
+    process_chain:
+      parent: explorer.exe
+      child: hh.exe
+    technique: T1204.002
+
+  - id: script_execution
+    event_id: 4688
+    process_chain:
+      parent: hh.exe
+      child: wscript.exe
+    technique: T1059.005
+
+  - id: payload_execution
+    event_id: 4688
+    process_chain:
+      parent: wscript.exe
+      child: powershell.exe
+    command_line_contains:
+      - "-ep bypass"
+      - "-enc"
+    technique: T1059.001
+
+anchors:
+  - event_id: 4688
+    condition: "powershell.exe with parent wscript.exe"
+
+correlation:
+  - logon_id

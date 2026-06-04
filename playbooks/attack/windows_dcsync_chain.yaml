@@ -1,0 +1,33 @@
+playbook_id: windows_dcsync_chain
+classification: malicious
+description: "Active Directory replication abuse (DCSync-like)"
+
+phases:
+  - id: initial_access
+    event_id: 4624
+    conditions:
+      logon_type: 10
+    technique: T1078
+
+  - id: privileged_context
+    event_id: 4624
+    conditions:
+      user_contains: admin
+    technique: T1078.002
+
+  - id: credential_access
+    event_id: 4662
+    object:
+      type: domainDNS
+      properties:
+        - "Replicating Directory Changes All"
+      access_mask: "0x100"
+    technique: T1003.006
+
+anchors:
+  - event_id: 4662
+    condition: "Replicating Directory Changes All"
+
+correlation:
+  - logon_id
+  - user

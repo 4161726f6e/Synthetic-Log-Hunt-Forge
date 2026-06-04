@@ -1,0 +1,17 @@
+playbook_id: legitimate_scheduled_task
+classification: suspicious
+description: >
+  Legitimate patch management system creates a scheduled task to run a
+  software update script. Produces a 4698 event that looks identical to
+  attacker-created persistence tasks. The distinguishing factors are the
+  known patch management service account, a recognisable task name, and
+  the task action pointing to a signed binary path.
+
+phases:
+  - id: task_creation
+    event_id: 4698
+    conditions:
+      task_name_contains: "PatchMgmt"
+      task_action_contains: "C:\\Program Files\\Patch"
+    user: patch_svc
+    time_hint: business_hours

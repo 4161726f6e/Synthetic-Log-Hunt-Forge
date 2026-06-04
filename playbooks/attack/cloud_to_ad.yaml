@@ -1,0 +1,35 @@
+playbook_id: cloud_to_ad
+classification: malicious
+description: "Web exploit -> shell -> AD activity -> credential tool execution (behavioral only)"
+
+phases:
+  - id: web_exploit
+    source: syslog
+    app: apache
+    message_contains: "POST /cgi-bin/"
+    technique: T1190
+
+  - id: shell
+    source: syslog
+    app: apache
+    message_contains: "reverse shell"
+    technique: T1059
+
+  - id: ad_activity
+    event_id: 4769
+    conditions:
+      service_contains: CIFS
+    technique: T1558
+
+  - id: credential_tool_execution
+    event_id: 4688
+    process:
+      name: mimikatz.exe
+    technique: T1003
+
+anchors:
+  - event_id: 4688
+    condition: "mimikatz.exe"
+
+correlation:
+  - user

@@ -1,0 +1,39 @@
+playbook_id: persistence_scheduled_task
+classification: malicious
+description: >
+  Attacker establishes persistence by creating a scheduled task that runs a
+  malicious payload at logon. The chain shows process execution leading to
+  task creation (4698), followed by the task launching a payload process.
+  Anchor is the 4698 event with a suspicious task name and action.
+
+phases:
+  - id: initial_access
+    event_id: 4624
+    conditions:
+      logon_type: 3
+    technique: T1078
+
+  - id: task_creation
+    event_id: 4698
+    conditions:
+      task_name_contains: "Update"
+      task_action_contains: "powershell"
+    technique: T1053.005
+
+  - id: payload_execution
+    event_id: 4688
+    process_chain:
+      parent: svchost.exe
+      child: powershell.exe
+    command_line_contains:
+      - "-WindowStyle Hidden"
+      - "-enc"
+    technique: T1059.001
+
+anchors:
+  - event_id: 4698
+    condition: "scheduled task with powershell action"
+
+correlation:
+  - logon_id
+  - user

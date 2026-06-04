@@ -1,0 +1,31 @@
+playbook_id: helpdesk_remote_logon
+classification: suspicious
+description: >
+  IT helpdesk technician remotely logs on to a workstation to diagnose an
+  issue. Produces a network logon (4624 type 3) followed by a 4648
+  explicit-credential event and cmd.exe execution — indistinguishable from
+  Pass-the-Hash lateral movement at the event level. The distinguishing
+  factors are the helpdesk service account name and the business-hours timing.
+
+phases:
+  - id: remote_logon
+    event_id: 4624
+    conditions:
+      logon_type: 3
+    user: helpdesk_svc
+    time_hint: business_hours
+
+  - id: explicit_credential
+    event_id: 4648
+    conditions:
+      target_contains: WS
+    user: helpdesk_svc
+    time_hint: business_hours
+
+  - id: diagnostic_tool
+    event_id: 4688
+    process_chain:
+      parent: services.exe
+      child: cmd.exe
+    user: helpdesk_svc
+    time_hint: business_hours

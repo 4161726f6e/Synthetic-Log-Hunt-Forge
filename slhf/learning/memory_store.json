@@ -1,0 +1,66 @@
+{
+  "failure_patterns": {
+    "DCSYNC_NO_4624": {
+      "count": 3,
+      "last_seen": "2026-05-22T16:49:47.426735Z"
+    },
+    "TIMELINE_TOO_SHORT": {
+      "count": 12,
+      "last_seen": "2026-05-22T17:13:49.336977Z"
+    },
+    "NO_FALSE_POSITIVES": {
+      "count": 10,
+      "last_seen": "2026-05-22T16:42:10.675290Z"
+    }
+  },
+  "successful_configs": [
+    {
+      "timestamp": "2026-05-22T17:25:41.568969Z",
+      "config": {
+        "seed": 1337,
+        "attack_count": 2,
+        "anomaly_count": 3,
+        "days": 3,
+        "noise_level": "high",
+        "min_time_gap_seconds": 60,
+        "force_logon_correlation": true
+      }
+    },
+    {
+      "timestamp": "2026-06-04T12:27:58.544981Z",
+      "config": {
+        "seed": 1111,
+        "attack_count": 3,
+        "anomaly_count": 6,
+        "days": 8,
+        "noise_level": "high",
+        "min_time_gap_seconds": 60,
+        "force_logon_correlation": true
+      }
+    },
+    {
+      "timestamp": "2026-06-04T12:29:17.507722Z",
+      "config": {
+        "seed": 1111,
+        "attack_count": 3,
+        "anomaly_count": 6,
+        "days": 8,
+        "noise_level": "high",
+        "min_time_gap_seconds": 60,
+        "force_logon_correlation": true
+      }
+    },
+    {
+      "timestamp": "2026-06-04T12:32:21.846593Z",
+      "config": {
+        "seed": 1111,
+        "attack_count": 3,
+        "anomaly_count": 6,
+        "days": 8,
+        "noise_level": "high",
+        "min_time_gap_seconds": 60,
+        "force_logon_correlation": true
+      }
+    }
+  ]
+}

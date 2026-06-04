@@ -1,0 +1,44 @@
+playbook_id: kerberoasting
+classification: malicious
+description: >
+  Kerberoasting attack. After establishing an authenticated session, the
+  attacker requests Kerberos service tickets (4769) for multiple service
+  accounts with SPNs, then cracks them offline. The burst of 4769 requests
+  for RC4-encrypted tickets (etype 0x17) across multiple service names from
+  a single user is the anchor pattern.
+
+phases:
+  - id: initial_access
+    event_id: 4624
+    conditions:
+      logon_type: 3
+    technique: T1078
+
+  - id: spn_ticket_request_1
+    event_id: 4769
+    conditions:
+      service_contains: MSSQLSvc
+      ticket_encryption_type: "0x17"
+    technique: T1558.003
+
+  - id: spn_ticket_request_2
+    event_id: 4769
+    conditions:
+      service_contains: HTTP
+      ticket_encryption_type: "0x17"
+    technique: T1558.003
+
+  - id: spn_ticket_request_3
+    event_id: 4769
+    conditions:
+      service_contains: RPCSS
+      ticket_encryption_type: "0x17"
+    technique: T1558.003
+
+anchors:
+  - event_id: 4769
+    condition: "RC4 ticket request (etype 0x17)"
+
+correlation:
+  - logon_id
+  - user

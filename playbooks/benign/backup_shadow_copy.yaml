@@ -1,0 +1,26 @@
+playbook_id: backup_shadow_copy
+classification: suspicious
+description: >
+  Enterprise backup software accesses Volume Shadow Copy Service to create
+  a consistent backup snapshot. Produces a vssadmin.exe process launch and
+  a 7045 service install (VSS provider) that mirror the ransomware precursor
+  pattern. The distinguishing factors are the backup service account, the
+  "create" (not "delete") verb in the command line, and the service binary
+  path pointing to a known backup vendor directory.
+
+phases:
+  - id: vss_access
+    event_id: 4688
+    process_chain:
+      parent: BackupExec.exe
+      child: vssadmin.exe
+    command_line_contains:
+      - "list shadows"
+    user: backup_svc
+
+  - id: vss_provider_install
+    event_id: 7045
+    conditions:
+      service_name_contains: "VSSProvider"
+      service_path_contains: "BackupExec"
+    user: backup_svc

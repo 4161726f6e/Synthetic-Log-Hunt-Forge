@@ -1,0 +1,51 @@
+playbook_id: ransomware_precursor
+classification: malicious
+description: >
+  Ransomware staging chain. Attacker enumerates volume shadow copies and
+  deletes them to prevent recovery, then installs a rogue service as the
+  ransomware delivery mechanism. The shadow copy deletion via vssadmin.exe
+  and the service install (7045) are the anchors.
+
+phases:
+  - id: initial_access
+    event_id: 4624
+    conditions:
+      logon_type: 3
+    technique: T1078
+
+  - id: shadow_copy_deletion
+    event_id: 4688
+    process_chain:
+      parent: cmd.exe
+      child: vssadmin.exe
+    command_line_contains:
+      - "delete shadows"
+      - "/all"
+    technique: T1490
+
+  - id: volume_enumeration
+    event_id: 4688
+    process_chain:
+      parent: cmd.exe
+      child: wmic.exe
+    command_line_contains:
+      - "shadowcopy"
+      - "list"
+    technique: T1082
+
+  - id: service_install
+    event_id: 7045
+    conditions:
+      service_name_contains: "SvcUpdate"
+      service_path_contains: "Temp"
+    technique: T1543.003
+
+anchors:
+  - event_id: 4688
+    condition: "vssadmin.exe delete shadows"
+  - event_id: 7045
+    condition: "service from Temp path"
+
+correlation:
+  - logon_id
+  - user

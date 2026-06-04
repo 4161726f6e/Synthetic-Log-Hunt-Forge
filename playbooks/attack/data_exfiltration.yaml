@@ -1,0 +1,48 @@
+playbook_id: data_exfiltration
+classification: malicious
+description: >
+  Data staging and exfiltration via HTTP. Attacker archives sensitive files
+  using a living-off-the-land binary, then exfiltrates via large outbound
+  HTTP POST requests visible in syslog. The combination of archive creation
+  followed by anomalously large outbound transfers is the anchor.
+
+phases:
+  - id: initial_access
+    event_id: 4624
+    conditions:
+      logon_type: 3
+    technique: T1078
+
+  - id: data_staging
+    event_id: 4688
+    process_chain:
+      parent: cmd.exe
+      child: robocopy.exe
+    command_line_contains:
+      - "C:\\Users"
+      - "C:\\Temp\\stage"
+    technique: T1074.001
+
+  - id: archive_creation
+    event_id: 4688
+    process_chain:
+      parent: cmd.exe
+      child: compact.exe
+    command_line_contains:
+      - "/c"
+      - "stage"
+    technique: T1560.001
+
+  - id: exfiltration_http
+    source: syslog
+    app: firewall
+    message_contains: "ALLOW TCP 443 bytes=52428800"
+    technique: T1048.002
+
+anchors:
+  - event_id: 4688
+    condition: "robocopy staging to Temp"
+
+correlation:
+  - logon_id
+  - user

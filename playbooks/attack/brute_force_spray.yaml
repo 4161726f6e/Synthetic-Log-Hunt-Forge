@@ -1,0 +1,53 @@
+playbook_id: brute_force_spray
+classification: malicious
+description: >
+  Password spray attack followed by successful authentication. Multiple
+  failed logon events (4625) across different accounts from a single source
+  IP precede a successful logon (4624). The high failure-to-success ratio
+  from one source is the distinguishing anchor.
+
+phases:
+  - id: spray_attempt_1
+    event_id: 4625
+    conditions:
+      logon_type: 3
+      failure_reason: "Unknown user name or bad password"
+    technique: T1110.003
+
+  - id: spray_attempt_2
+    event_id: 4625
+    conditions:
+      logon_type: 3
+      failure_reason: "Unknown user name or bad password"
+    technique: T1110.003
+
+  - id: spray_attempt_3
+    event_id: 4625
+    conditions:
+      logon_type: 3
+      failure_reason: "Unknown user name or bad password"
+    technique: T1110.003
+
+  - id: successful_logon
+    event_id: 4624
+    conditions:
+      logon_type: 3
+      user_contains: admin
+    technique: T1078
+
+  - id: discovery
+    event_id: 4688
+    process_chain:
+      parent: cmd.exe
+      child: net.exe
+    command_line_contains:
+      - "user /domain"
+    technique: T1087.002
+
+anchors:
+  - event_id: 4625
+    condition: "repeated failed logons type 3 from single source"
+
+correlation:
+  - logon_id
+  - user

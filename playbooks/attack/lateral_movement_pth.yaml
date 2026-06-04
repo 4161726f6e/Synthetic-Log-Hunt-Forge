@@ -1,0 +1,45 @@
+playbook_id: lateral_movement_pth
+classification: malicious
+description: >
+  Pass-the-Hash lateral movement chain. Attacker uses captured NTLM hash to
+  authenticate to a remote host without knowing the plaintext password, then
+  moves laterally to a domain controller. Anchor is the explicit-credential
+  logon (4648) combined with a network logon (4624 type 3) from a non-standard
+  source host.
+
+phases:
+  - id: initial_compromise
+    event_id: 4624
+    conditions:
+      logon_type: 3
+    technique: T1078
+
+  - id: explicit_credential_use
+    event_id: 4648
+    conditions:
+      target_contains: DC
+    technique: T1550.002
+
+  - id: lateral_logon
+    event_id: 4624
+    conditions:
+      logon_type: 3
+      user_contains: admin
+    technique: T1550.002
+
+  - id: remote_execution
+    event_id: 4688
+    process_chain:
+      parent: services.exe
+      child: cmd.exe
+    command_line_contains:
+      - "whoami"
+    technique: T1569.002
+
+anchors:
+  - event_id: 4648
+    condition: "explicit credential logon targeting DC"
+
+correlation:
+  - logon_id
+  - user
